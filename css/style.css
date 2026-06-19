@@ -5,6 +5,7 @@
   padding: 0;
 }
 
+/* Default: dark theme */
 :root {
   --bg:         #0f1117;
   --surface:    #1a1d27;
@@ -16,6 +17,31 @@
   --text-muted: #888899;
   --radius:     12px;
   --gap:        1rem;
+}
+
+/* Light theme overrides — applied when <html data-theme="light"> */
+[data-theme="light"] {
+  --bg:         #f0f2f8;
+  --surface:    #ffffff;
+  --border:     #d0d4e8;
+  --accent:     #5b4de8;
+  --accent-dim: #4438c4;
+  --danger:     #d63030;
+  --text:       #1a1a2e;
+  --text-muted: #666680;
+}
+
+/* ── THEME TOGGLE BUTTON ────────────────────────────────────── */
+#theme-toggle-wrap {
+  width: 100%;
+  max-width: 560px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+#theme-toggle {
+  font-size: 0.85rem;
+  padding: 0.4rem 1rem;
 }
 
 body {
@@ -74,6 +100,34 @@ body {
 .date-display {
   color: var(--text-muted);
   font-size: 0.95rem;
+  margin-bottom: 1rem;
+}
+
+.name-row {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.name-row input {
+  padding: 0.4rem 0.85rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s;
+  width: 200px;
+}
+
+.name-row input:focus {
+  border-color: var(--accent);
+}
+
+.name-row input::placeholder {
+  color: var(--text-muted);
 }
 
 /* ── FOCUS TIMER ─────────────────────────────────────────────── */
@@ -210,6 +264,14 @@ body {
 }
 
 /* ── TO-DO LIST ──────────────────────────────────────────────── */
+.todo-warning {
+  font-size: 0.85rem;
+  color: var(--danger);
+  min-height: 1.2em;
+  margin-bottom: 0.5rem;
+  margin-top: -0.5rem; /* tuck it up close to the input row */
+}
+
 #todo-list {
   list-style: none;
   display: flex;

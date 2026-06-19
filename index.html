@@ -8,11 +8,29 @@
   </head>
   <body>
 
+    <!-- ── THEME TOGGLE ─────────────────────────────────────── -->
+    <div id="theme-toggle-wrap">
+      <button id="theme-toggle" class="btn btn-ghost" aria-label="Toggle theme">
+        🌙 Dark
+      </button>
+    </div>
+
     <!-- ── GREETING ─────────────────────────────────────────── -->
     <section class="card" id="greeting-section">
       <h1 id="greeting-text">Good Morning!</h1>
       <p id="current-time" class="time-display">00:00:00</p>
       <p id="current-date" class="date-display">Monday, January 1, 2025</p>
+      <div id="name-row" class="name-row">
+        <input
+          type="text"
+          id="name-input"
+          placeholder="Enter your name…"
+          maxlength="40"
+          aria-label="Your name"
+        />
+        <button id="name-save" class="btn btn-primary">Save</button>
+        <button id="name-edit" class="btn btn-ghost" style="display:none">✏️ Edit</button>
+      </div>
     </section>
 
     <!-- ── FOCUS TIMER ───────────────────────────────────────── -->
@@ -38,6 +56,7 @@
         />
         <button id="todo-add" class="btn btn-primary">Add</button>
       </div>
+      <p id="todo-warning" class="todo-warning" aria-live="polite"></p>
       <ul id="todo-list"></ul>
     </section>
 

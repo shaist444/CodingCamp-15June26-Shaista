@@ -1,6 +1,7 @@
 /* ================================================================
    LIFE DASHBOARD — script.js
    Sections:
+     0. Theme Toggle (light / dark)
      1. Greeting (time & date)
      2. Focus Timer
      3. To-Do List
@@ -8,23 +9,71 @@
 ================================================================ */
 
 
+/* ── 0. THEME TOGGLE ─────────────────────────────────────────── */
+
+const THEME_KEY = "dashboard_theme";
+
+const themeToggleBtn = document.getElementById("theme-toggle");
+
+function applyTheme(theme) {
+  if (theme === "light") {
+    document.documentElement.setAttribute("data-theme", "light");
+    themeToggleBtn.textContent = "☀️ Light";
+  } else {
+    document.documentElement.removeAttribute("data-theme");
+    themeToggleBtn.textContent = "🌙 Dark";
+  }
+}
+
+function initTheme() {
+  const saved = localStorage.getItem(THEME_KEY) || "dark";
+  applyTheme(saved);
+}
+
+themeToggleBtn.addEventListener("click", () => {
+  // Read current state from the DOM, then flip it
+  const isLight = document.documentElement.hasAttribute("data-theme");
+  const newTheme = isLight ? "dark" : "light";
+  localStorage.setItem(THEME_KEY, newTheme);
+  applyTheme(newTheme);
+});
+
+initTheme();
+
+
 /* ── 1. GREETING ─────────────────────────────────────────────── */
 
-function updateGreeting() {
-  const now = new Date();
-  const hours = now.getHours();
+const NAME_KEY = "dashboard_name";
 
-  // Greeting based on time of day
-  let greeting;
-  if (hours < 12) {
-    greeting = "Good Morning! ☀️";
-  } else if (hours < 17) {
-    greeting = "Good Afternoon! 🌤️";
-  } else if (hours < 21) {
-    greeting = "Good Evening! 🌇";
-  } else {
-    greeting = "Good Night! 🌙";
-  }
+const nameInput   = document.getElementById("name-input");
+const nameSaveBtn = document.getElementById("name-save");
+const nameEditBtn = document.getElementById("name-edit");
+
+function getGreetingPhrase(hours) {
+  if (hours < 12)       return "Good Morning";
+  else if (hours < 17)  return "Good Afternoon";
+  else if (hours < 21)  return "Good Evening";
+  else                  return "Good Night";
+}
+
+function getGreetingEmoji(hours) {
+  if (hours < 12)       return "☀️";
+  else if (hours < 17)  return "🌤️";
+  else if (hours < 21)  return "🌇";
+  else                  return "🌙";
+}
+
+function updateGreeting() {
+  const now   = new Date();
+  const hours = now.getHours();
+  const name  = localStorage.getItem(NAME_KEY) || "";
+
+  // Build greeting with optional name
+  const phrase = getGreetingPhrase(hours);
+  const emoji  = getGreetingEmoji(hours);
+  const greeting = name
+    ? `${phrase}, ${name}! ${emoji}`
+    : `${phrase}! ${emoji}`;
 
   // Format time as HH:MM:SS
   const hh = String(hours).padStart(2, "0");
@@ -44,6 +93,53 @@ function updateGreeting() {
   document.getElementById("current-time").textContent = timeStr;
   document.getElementById("current-date").textContent = dateStr;
 }
+
+function showNameInput() {
+  nameInput.style.display  = "";
+  nameSaveBtn.style.display = "";
+  nameEditBtn.style.display = "none";
+  nameInput.focus();
+}
+
+function showNameEdit() {
+  nameInput.style.display   = "none";
+  nameSaveBtn.style.display = "none";
+  nameEditBtn.style.display = "";
+}
+
+function saveName() {
+  const name = nameInput.value.trim();
+  if (!name) return; // don't save empty string
+  localStorage.setItem(NAME_KEY, name);
+  updateGreeting();
+  showNameEdit();
+}
+
+// Save on button click or Enter key
+nameSaveBtn.addEventListener("click", saveName);
+nameInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") saveName();
+});
+
+// Edit button brings back the input
+nameEditBtn.addEventListener("click", () => {
+  const saved = localStorage.getItem(NAME_KEY) || "";
+  nameInput.value = saved;
+  showNameInput();
+});
+
+// On load: if name already saved, show edit button; otherwise show input
+function initName() {
+  const saved = localStorage.getItem(NAME_KEY);
+  if (saved) {
+    nameInput.value = saved;
+    showNameEdit();
+  } else {
+    showNameInput();
+  }
+}
+
+initName();
 
 // Run immediately then update every second
 updateGreeting();
@@ -215,11 +311,29 @@ function renderTodos() {
 }
 
 function addTodo() {
-  const input = document.getElementById("todo-input");
-  const text = input.value.trim();
+  const input      = document.getElementById("todo-input");
+  const warningEl  = document.getElementById("todo-warning");
+  const text       = input.value.trim();
+
   if (!text) return;
 
   const todos = loadTodos();
+
+  // Check for duplicate (case-insensitive)
+  const isDuplicate = todos.some(
+    (t) => t.text.toLowerCase() === text.toLowerCase()
+  );
+
+  if (isDuplicate) {
+    warningEl.textContent = `⚠️ "${text}" is already in your list.`;
+    input.focus();
+    // Auto-clear the warning after 3 seconds
+    setTimeout(() => { warningEl.textContent = ""; }, 3000);
+    return;
+  }
+
+  // Clear any previous warning and add the task
+  warningEl.textContent = "";
   todos.push({ text, done: false });
   saveTodos(todos);
   input.value = "";
